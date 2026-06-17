@@ -1,0 +1,343 @@
+
+<h2 class="sr-only">Top 20 e-commerce products dashboard for July–August 2025, covering Amazon, Shopify and Tatacliq platforms</h2>
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-sans)}
+.dash{padding:1rem 0}
+.kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:1.25rem}
+.kpi{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:12px 14px}
+.kpi-label{font-size:11px;color:var(--color-text-secondary);margin-bottom:5px;text-transform:uppercase;letter-spacing:.04em}
+.kpi-val{font-size:20px;font-weight:500;color:var(--color-text-primary);line-height:1.1}
+.kpi-sub{font-size:11px;color:var(--color-text-tertiary);margin-top:3px}
+.kpi-dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px;vertical-align:middle}
+.controls{display:flex;align-items:center;gap:8px;margin-bottom:1.25rem;flex-wrap:wrap}
+.ctrl-label{font-size:12px;color:var(--color-text-secondary);font-weight:500}
+.tabs{display:flex;gap:4px;background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:3px}
+.tab{padding:5px 14px;border-radius:6px;border:none;background:transparent;font-size:13px;cursor:pointer;color:var(--color-text-secondary);font-weight:400;transition:all .15s}
+.tab.active{background:var(--color-background-primary);color:var(--color-text-primary);font-weight:500;border:0.5px solid var(--color-border-tertiary)}
+.content-grid{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:14px}
+.card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:14px}
+.card-title{font-size:12px;font-weight:500;color:var(--color-text-secondary);margin-bottom:12px;text-transform:uppercase;letter-spacing:.04em}
+.chart-wrap{position:relative}
+.rank-table{width:100%;border-collapse:collapse}
+.rank-table td{padding:5px 6px;font-size:12px;border-bottom:0.5px solid var(--color-border-tertiary);vertical-align:middle}
+.rank-table tr:last-child td{border-bottom:none}
+.rank-badge{width:20px;height:20px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:500;background:var(--color-background-secondary);color:var(--color-text-secondary)}
+.rank-badge.top3{background:#B7950B22;color:#B7950B}
+.prod-name{color:var(--color-text-primary);font-weight:400;max-width:120px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.prod-code{color:var(--color-text-tertiary);font-size:11px}
+.bar-mini{height:4px;border-radius:2px;background:var(--color-background-secondary);margin-top:3px}
+.bar-fill{height:4px;border-radius:2px}
+.sales-val{color:var(--color-text-primary);font-weight:500;font-size:12px;white-space:nowrap}
+.pct-val{color:var(--color-text-secondary);font-size:11px}
+.legend{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:10px}
+.leg-item{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--color-text-secondary)}
+.leg-sq{width:10px;height:10px;border-radius:2px;flex-shrink:0}
+</style>
+
+<div class="dash">
+
+<div class="kpis" id="kpis"></div>
+
+<div class="controls">
+  <span class="ctrl-label">Platform</span>
+  <div class="tabs" id="tabs">
+    <button class="tab active" data-plat="all">All platforms</button>
+    <button class="tab" data-plat="amazon">Amazon</button>
+    <button class="tab" data-plat="shopify">Shopify</button>
+    <button class="tab" data-plat="tatacliq">Tatacliq</button>
+  </div>
+</div>
+
+<div class="content-grid">
+  <div class="card">
+    <div class="card-title" id="bar-title">Top 20 products by sales – all platforms</div>
+    <div class="legend" id="bar-legend"></div>
+    <div class="chart-wrap" id="bar-wrap"><canvas id="barChart" role="img" aria-label="Horizontal bar chart showing top 20 products by sales value"></canvas></div>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:14px">
+    <div class="card">
+      <div class="card-title">Platform share</div>
+      <div class="legend" id="pie-legend"></div>
+      <div class="chart-wrap" style="height:170px"><canvas id="pieChart" role="img" aria-label="Donut chart showing platform share of total sales between Amazon, Shopify and Tatacliq"></canvas></div>
+    </div>
+    <div class="card" style="flex:1;overflow:auto">
+      <div class="card-title" id="rank-title">Ranked list</div>
+      <table class="rank-table" id="rankTable"></table>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+const DATA = {
+  all:[
+    {rank:1,code:"PILLOW 3 LAYER",name:"Pillow 3 Layer",sales:1042164},
+    {rank:2,code:"PILLOW DOCTOR",name:"Cotton Pillow Doctor",sales:518675},
+    {rank:3,code:"PILLOW PRESSR RELIEF",name:"Pillow Pressure Relief",sales:426482},
+    {rank:4,code:"PILLOW MUSHY",name:"Pillow Mushy",sales:405708},
+    {rank:5,code:"PILLOW ROYALE NA",name:"Pillow Royale",sales:353623},
+    {rank:6,code:"PILLOW MILK",name:"Pillow Milk",sales:328216},
+    {rank:7,code:"ALOVERA DBL NA",name:"Quilt Aloevera Double",sales:275681},
+    {rank:8,code:"PILLOW SOYABEAN",name:"Pillow Soyabean",sales:262349},
+    {rank:9,code:"PILLOW ALOVERA NA",name:"Pillow Aloevera",sales:244820},
+    {rank:10,code:"TENCEL AC DBL NA",name:"Quilt Tencel AC Double",sales:214220},
+    {rank:11,code:"PILLOW MUSHY PRSD",name:"Pillow Mushy President",sales:210804},
+    {rank:12,code:"SOYABEAN AC DBL NA",name:"Quilt Soyabean AC Double",sales:185423},
+    {rank:13,code:"TROLY W WFM AW22",name:"Trolley Wooden WFM",sales:176997},
+    {rank:14,code:"PILLOW TENCEL",name:"Pillow Tencel",sales:167750},
+    {rank:15,code:"TWLREST 75X150 WT",name:"Resort Towel 75×150",sales:164029},
+    {rank:16,code:"QLT TEMPRCN DOUBLE",name:"Quilt Temperature Control",sales:155097},
+    {rank:17,code:"MILK AC DOUBLE N",name:"Quilt Milk AC Double",sales:150688},
+    {rank:18,code:"PILLOW COTTON N",name:"Cotton Pillow N",sales:138567},
+    {rank:19,code:"OXF BSD STONE",name:"Oxford B.Sheet Double Stone",sales:134984},
+    {rank:20,code:"TENCEL AC DBL NA2",name:"Quilted Tencel Double NA",sales:131685}
+  ],
+  amazon:[
+    {rank:1,code:"PILLOW MUSHY",name:"Pillow Mushy",sales:359352},
+    {rank:2,code:"PILLOW PRESSR RELIEF",name:"Pillow Pressure Relief",sales:320337},
+    {rank:3,code:"PILLOW 3 LAYER",name:"Pillow 3 Layer",sales:272133},
+    {rank:4,code:"PILLOW DOCTOR",name:"Cotton Pillow Doctor",sales:251804},
+    {rank:5,code:"PILLOW MUSHY PRSD",name:"Pillow Mushy President",sales:191532},
+    {rank:6,code:"PILLOW SOYABEAN",name:"Pillow Soyabean",sales:160145},
+    {rank:7,code:"PILLOW ROYALE NA",name:"Pillow Royale",sales:146560},
+    {rank:8,code:"TROLY W WFM AW22",name:"Trolley Wooden WFM",sales:140860},
+    {rank:9,code:"PILLOW MILK",name:"Pillow Milk",sales:129747},
+    {rank:10,code:"PILLOW ALOVERA NA",name:"Pillow Aloevera",sales:123922},
+    {rank:11,code:"TROLLY WOOD BLACK N",name:"Trolley Wood Black",sales:123272},
+    {rank:12,code:"OXF BSD STONE",name:"Oxford B.Sheet Stone",sales:115646},
+    {rank:13,code:"OXF BSD TAPUE",name:"Oxford B.Sheet Taupe",sales:102029},
+    {rank:14,code:"PILLOW TENCEL",name:"Pillow Tencel",sales:87318},
+    {rank:15,code:"ALOVERA DBL NA",name:"Quilt Aloevera Double",sales:81698},
+    {rank:16,code:"TROLLY WOOD TEAK N",name:"Trolley Wood Teak",sales:74909},
+    {rank:17,code:"PILLOW COTTON N",name:"Cotton Pillow N",sales:72906},
+    {rank:18,code:"PILLOW LAVENDER",name:"Pillow Lavender",sales:64600},
+    {rank:19,code:"PILLOW MF VERY SLIM",name:"Pillow MF Very Slim",sales:56816},
+    {rank:20,code:"OXF BSD CITADEL",name:"Oxford B.Sheet Citadel",sales:55381}
+  ],
+  shopify:[
+    {rank:1,code:"PILLOW 3 LAYER",name:"Pillow 3 Layer",sales:503051},
+    {rank:2,code:"PILLOW DOCTOR",name:"Cotton Pillow Doctor",sales:233813},
+    {rank:3,code:"ALOVERA DBL NA",name:"Quilt Aloevera Double",sales:193983},
+    {rank:4,code:"PILLOW MILK",name:"Pillow Milk",sales:190467},
+    {rank:5,code:"PILLOW ROYALE NA",name:"Pillow Royale",sales:175425},
+    {rank:6,code:"SOYABEAN AC DBL NA",name:"Quilt Soyabean AC Double",sales:164177},
+    {rank:7,code:"QLT TEMPRCN DOUBLE",name:"Quilt Temperature Control",sales:155097},
+    {rank:8,code:"TWLREST 75X150 WT",name:"Resort Towel 75×150",sales:152586},
+    {rank:9,code:"MILK AC DOUBLE N",name:"Quilt Milk AC Double",sales:150688},
+    {rank:10,code:"TENCEL AC DBL NA",name:"Quilt Tencel AC Double",sales:139988},
+    {rank:11,code:"TENCEL AC DBL NA2",name:"Quilted Tencel Double NA",sales:131685},
+    {rank:12,code:"PILLOW PRESSR RELIEF",name:"Pillow Pressure Relief",sales:106144},
+    {rank:13,code:"PILLOW ALOVERA NA",name:"Pillow Aloevera",sales:102915},
+    {rank:14,code:"PILLOW DOCTOR PRSD",name:"Pillow Doctor President",sales:93496},
+    {rank:15,code:"SUPM9 DCSD IVORY",name:"Supima 900 D.Cover Set Ivory",sales:83027},
+    {rank:16,code:"TENCEL WINTERDOUBLE",name:"Quilt Tencel Winter Double",sales:81415},
+    {rank:17,code:"PILLOW SOYABEAN",name:"Pillow Soyabean",sales:78814},
+    {rank:18,code:"PILLOW BUCIGM PALACE",name:"Pillow Bucigm Palace",sales:77635},
+    {rank:19,code:"PILLOW TENCEL",name:"Pillow Tencel",sales:71939},
+    {rank:20,code:"WB AN ROUND 6L RGLD",name:"Waste Bin Rose Gold Moon",sales:69911}
+  ],
+  tatacliq:[
+    {rank:1,code:"PILLOW 3 LAYER",name:"Pillow 3 Layer",sales:266980},
+    {rank:2,code:"MFG PRT BSD 026",name:"Made From Green B.Sheet 026",sales:56371},
+    {rank:3,code:"KNT SHRP BLKTDBL GRY",name:"Knitted Sherpa Blanket Double",sales:56090},
+    {rank:4,code:"TWL WS 75X150 DENIM",name:"Water & Soil Towel Denim",sales:52365},
+    {rank:5,code:"MFG PRT BSD 024",name:"Made From Green B.Sheet 024",sales:44687},
+    {rank:6,code:"PILLOW BLOSSOM PRSD",name:"Pillow Blossom President",sales:41407},
+    {rank:7,code:"MFG PRT BSD 034",name:"Made From Green B.Sheet 034",sales:39391},
+    {rank:8,code:"QLT MOONWR DBL 01LGY",name:"Quilt Moon Walker Light Grey",sales:34790},
+    {rank:9,code:"PILLOW DOCTOR",name:"Cotton Pillow Doctor",sales:33058},
+    {rank:10,code:"PILLOW ROYALE NA",name:"Pillow Royale",sales:31638},
+    {rank:11,code:"PILLOW DOCTOR PRSD",name:"Pillow Doctor President",sales:31084},
+    {rank:12,code:"TENCEL AC SGL NA",name:"Quilt Tencel AC Single",sales:29884},
+    {rank:13,code:"KNT BLKT DBL BG",name:"Knitted Blanket Double Beige",sales:29462},
+    {rank:14,code:"TWL WS 75X150 BEIGE",name:"Water & Soil Towel Beige",sales:29199},
+    {rank:15,code:"EGPT DCSD MOUSE",name:"Egyptian Duvet Cover Set Mouse",sales:28616},
+    {rank:16,code:"SOYABEAN AC SGL NA",name:"Quilt Soyabean AC Single",sales:26926},
+    {rank:17,code:"KNT BLKT DBL STONE",name:"Knitted Blanket Double Stone",sales:25779},
+    {rank:18,code:"EGPT DCSD CHOCO",name:"Egyptian Duvet Cover Set Choco",sales:25754},
+    {rank:19,code:"EGPT DCSD DK GY",name:"Egyptian Duvet Cover Set Dark Grey",sales:25754},
+    {rank:20,code:"IJQ BSD 8006 BG",name:"Italian Jq B.Sheet Double Beige",sales:25575}
+  ]
+};
+
+const PLAT_TOTALS = {amazon:9142802,shopify:17621822,tatacliq:2755848};
+const GRAND = 29520472;
+
+const PLAT_COLORS = {
+  amazon:  {bar:'#1A6FA8', pie:'#378ADD', dot:'#1A6FA8', label:'Amazon'},
+  shopify: {bar:'#1D9E75', pie:'#1D9E75', dot:'#1D9E75', label:'Shopify'},
+  tatacliq:{bar:'#A32D2D', pie:'#E24B4A', dot:'#A32D2D', label:'Tatacliq'},
+  all:     {bar:'#534AB7', pie:'#534AB7', dot:'#534AB7', label:'All platforms'}
+};
+
+const fmt = n => '₹'+Math.round(n).toLocaleString('en-IN');
+const fmtL = n => n>=100000 ? '₹'+(n/100000).toFixed(1)+'L' : '₹'+Math.round(n/1000)+'K';
+
+let currentPlat = 'all';
+
+function renderKPIs(){
+  const kd = [
+    {label:'Grand total',val:fmt(GRAND),sub:'Jul – Aug 2025',dot:null},
+    {label:'Amazon',val:fmt(PLAT_TOTALS.amazon),sub:(PLAT_TOTALS.amazon/GRAND*100).toFixed(1)+'% share',dot:'#378ADD'},
+    {label:'Shopify',val:fmt(PLAT_TOTALS.shopify),sub:(PLAT_TOTALS.shopify/GRAND*100).toFixed(1)+'% share',dot:'#1D9E75'},
+    {label:'Tatacliq',val:fmt(PLAT_TOTALS.tatacliq),sub:(PLAT_TOTALS.tatacliq/GRAND*100).toFixed(1)+'% share',dot:'#E24B4A'},
+  ];
+  document.getElementById('kpis').innerHTML = kd.map(k=>`
+    <div class="kpi">
+      <div class="kpi-label">${k.dot?`<span class="kpi-dot" style="background:${k.dot}"></span>`:''}${k.label}</div>
+      <div class="kpi-val">${k.val}</div>
+      <div class="kpi-sub">${k.sub}</div>
+    </div>`).join('');
+}
+
+let barChart, pieChart;
+
+function getBarColor(plat, idx){
+  const cols = {
+    all:  ['#534AB7','#6259C4','#7068D0','#7E78DC','#8C88E8'],
+    amazon:  ['#1A6FA8','#2580BC','#3090CE','#40A0DE','#50B0EE'],
+    shopify: ['#0F6E56','#1D9E75','#2DBE90','#3DCE9F','#4DDEAF'],
+    tatacliq:['#7B241C','#A32D2D','#C03C3C','#D85050','#E87070'],
+  };
+  const ramp = cols[plat] || cols.all;
+  return ramp[idx % ramp.length];
+}
+
+function buildBarChart(plat){
+  const items = DATA[plat];
+  const maxS = items[0].sales;
+  const labels = items.map(d=>d.code.length>18?d.code.slice(0,18)+'…':d.code);
+  const vals = items.map(d=>d.sales);
+  const colors = items.map((_,i)=>getBarColor(plat,i));
+
+  document.getElementById('bar-wrap').style.height = (items.length*36+60)+'px';
+
+  const legend = document.getElementById('bar-legend');
+  if(plat==='all'){
+    legend.innerHTML=`<span class="leg-item"><span class="leg-sq" style="background:#534AB7"></span>Combined platforms</span>`;
+  } else {
+    const c = PLAT_COLORS[plat];
+    legend.innerHTML=`<span class="leg-item"><span class="leg-sq" style="background:${c.bar}"></span>${c.label} top-20 products</span>`;
+  }
+
+  document.getElementById('bar-title').textContent =
+    `Top 20 products by sales – ${PLAT_COLORS[plat]?PLAT_COLORS[plat].label:'all platforms'}`;
+
+  if(barChart) barChart.destroy();
+  const ctx = document.getElementById('barChart');
+  barChart = new Chart(ctx,{
+    type:'bar',
+    data:{
+      labels,
+      datasets:[{
+        label:'Sales (₹)',
+        data:vals,
+        backgroundColor:colors,
+        borderWidth:0,
+        borderRadius:3,
+      }]
+    },
+    options:{
+      indexAxis:'y',
+      responsive:true,
+      maintainAspectRatio:false,
+      plugins:{
+        legend:{display:false},
+        tooltip:{
+          callbacks:{
+            label:ctx=>' '+fmt(ctx.parsed.x),
+            title:ctx=>items[ctx[0].dataIndex].name
+          }
+        }
+      },
+      scales:{
+        x:{
+          grid:{color:'rgba(128,128,128,0.1)'},
+          ticks:{font:{size:10},callback:v=>fmtL(v)},
+          border:{display:false}
+        },
+        y:{
+          grid:{display:false},
+          ticks:{font:{size:10.5},color:'#666'},
+          border:{display:false}
+        }
+      }
+    }
+  });
+}
+
+function buildPieChart(){
+  const plats = ['Amazon','Shopify','Tatacliq'];
+  const vals  = [PLAT_TOTALS.amazon, PLAT_TOTALS.shopify, PLAT_TOTALS.tatacliq];
+  const clrs  = ['#378ADD','#1D9E75','#E24B4A'];
+
+  const legend = document.getElementById('pie-legend');
+  legend.innerHTML = plats.map((p,i)=>`
+    <span class="leg-item"><span class="leg-sq" style="background:${clrs[i]}"></span>${p} ${(vals[i]/GRAND*100).toFixed(1)}%</span>
+  `).join('');
+
+  if(pieChart) pieChart.destroy();
+  pieChart = new Chart(document.getElementById('pieChart'),{
+    type:'doughnut',
+    data:{
+      labels:plats,
+      datasets:[{data:vals,backgroundColor:clrs,borderWidth:2,borderColor:'#ffffff10',hoverOffset:4}]
+    },
+    options:{
+      responsive:true,
+      maintainAspectRatio:false,
+      cutout:'62%',
+      plugins:{
+        legend:{display:false},
+        tooltip:{callbacks:{label:ctx=>` ${fmt(ctx.parsed)} (${(ctx.parsed/GRAND*100).toFixed(1)}%)`}}
+      }
+    }
+  });
+}
+
+function buildRankTable(plat){
+  const items = DATA[plat];
+  const maxS  = items[0].sales;
+  const total = items.reduce((a,d)=>a+d.sales,0);
+  const color = getBarColor(plat,0);
+
+  document.getElementById('rank-title').textContent =
+    `Ranked list – ${PLAT_COLORS[plat]?PLAT_COLORS[plat].label:'all platforms'}`;
+
+  document.getElementById('rankTable').innerHTML = items.map(d=>`
+    <tr>
+      <td style="width:24px"><span class="rank-badge${d.rank<=3?' top3':''}">${d.rank}</span></td>
+      <td>
+        <div class="prod-name" title="${d.name}">${d.name}</div>
+        <div class="prod-code">${d.code}</div>
+        <div class="bar-mini"><div class="bar-fill" style="width:${(d.sales/maxS*100).toFixed(1)}%;background:${color}"></div></div>
+      </td>
+      <td style="text-align:right;width:80px">
+        <div class="sales-val">${fmtL(d.sales)}</div>
+        <div class="pct-val">${(d.sales/total*100).toFixed(1)}%</div>
+      </td>
+    </tr>`).join('');
+}
+
+function update(plat){
+  currentPlat = plat;
+  buildBarChart(plat);
+  buildRankTable(plat);
+  document.querySelectorAll('.tab').forEach(t=>{
+    t.classList.toggle('active', t.dataset.plat===plat);
+  });
+}
+
+document.getElementById('tabs').addEventListener('click',e=>{
+  const btn = e.target.closest('.tab');
+  if(btn) update(btn.dataset.plat);
+});
+
+renderKPIs();
+buildPieChart();
+update('all');
+</script>
